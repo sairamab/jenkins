@@ -1,66 +1,81 @@
-##  Repo for Jenkins practice and projects ##
+# Repo for Jenkins Practice and Projects
 
+## Introduction
 
-# Introduction #
+Jenkins is an open-source tool widely used for Continuous Integration (CI) and Continuous Deployment (CD), which helps in automating builds, tests, and deployments.
 
-Jenkins is an open source tool used widely for continous integration (CI) and continous deployment (CD), which helps is automating  builds, tests and deployment.
+### Why Jenkins?
+- **Easy Installation**
+- **Scalable Architecture** (Runs builds on multiple agents)
+- **Extensive Plugin Support** (More than 1800 plugins!)
+- **Supports Declarative and Scripted Pipelines**
+- **Integrates with Various Tools** (Many integrations done through plugins)
 
-Why only Jenkins: 
-  easy installation,
-  architecture (Runs builds on multiple agents for scalability.) 
-  wider plugins support(more than 1800!), 
-  supports declarative and scripted pipelines, 
-  various tools integration (many tools done through plugins).
+### Jenkins Architecture
+- **Jenkins Controller (Master)**: Handles UI, job scheduling, plugin management, workflow triggering, and result display.
+- **Jenkins Agents (Slaves)**: Responsible for executing jobs assigned by the controller.
+- **Job**: A task that needs to be executed.
 
-How Jenkins works (Architecture):
-  Jenkins Controller(Master) - handles UI, job scheduling, plugin management, triggering workflows, displaying results.
-  Jenkins Agents(Slaves) - responsible for executing jobs as assigned by controller.
-  Job - task which need to be executed
+Jenkins allows task creation through multiple methods, with pipelines being the most widely used approach:
+- **Declarative Pipelines**: Structured, readable format with easier maintenance.
+- **Scripted Pipelines**: More complex but highly customizable.
 
+## Installation
 
-Creating these tasks can be done in multiple ways in jenkins, widely used one is with pipelines
-  Declarative pipelines - structured, readable format and easier maintenance.
-  Scripted pipelines - complex but more customizable.
-  
+Jenkins can be installed in multiple ways, with Java as a prerequisite since it is a Java-based application. The installation steps can be referred to in the official documentation.
 
-# Installation #
+### Jenkins Installation on Windows using Docker
+1. Install Docker (Docker Desktop).
+2. Run the following command to start Jenkins:
+   ```sh
+   docker run -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
+   ```
+3. Access Jenkins through [http://localhost:8080](http://localhost:8080).
+4. Connect to the working environment with:
+   ```sh
+   docker exec -it -u root <container-id> /bin/bash
+   ```
+   - Obtain `<container-id>` by checking the running Jenkins process using `docker ps`.
 
-Jenkins can be installed in multiple ways with java as prerequisite as it is java based application. Steps can be referred from documentation.
-In this project, we installed jenkins through docker.
+### Master-Slave Architecture
+In the above setup, Jenkins runs in a single container without a separate agent. By default, it executes jobs on the same instance unless an agent is configured separately.
 
-Jenkins Installation on windows through docker:
-  docker to be installed in the form of docker desktop.
-  docker run -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
-  post above step, we can access jenkins from local through http://localhost:8080
-  we can connect to working environment through, docker exec -it -u root <container-id> /bin/bash
-     <container-id> is obtained through checking running process of jenkins (docker ps)
+To set up a master-agent architecture:
+- Start a separate container for the agent.
+- Establish a connection between the agent and master using:
+  - **SSH** (for Linux agents)
+  - **JNLP jar** (for Windows agents)
 
- In the above setup, there is no separate agent. 
- As jenkins running in single container, by default jenkins runs it's jobs on same instance unless agent configured separately.
- If we want a master-slave architecture, we need to configure agent separately(In this case another container needs to be generated for agent).
- connection bwteen agent and master is done through SSH(linux agent) or JNLP jar(windows agent)
+## Project
 
+A simple `Jenkinsfile` that performs the CI process:
+1. Cleans up the current working directory.
+2. Pulls code from a public repository with a Maven project.
+3. Builds using Maven.
+4. Runs tests.
 
-# Project #
+## Troubleshooting
 
-A simple Jenkins file that performs CI process as : 
-   cleaning up current working directory.
-   pulls code from a public repository with maven project.
-   builds with maven.
-   performs test.
+Before running the `Jenkinsfile` successfully, some builds failed. Follow these steps to avoid common issues:
 
-# Troubleshooting #
+### Maven Version Issue
+**Error:**
+```
+Detected Maven Version: 3.8.7 is not in the allowed range [3.9.2,)
+```
+- The container runs Maven 3.8.7, but the requirement is at least 3.9.2.
+- Updating Maven inside the container was unsuccessful, so we specified the required version in the `Jenkinsfile`:
 
-Before running the Jenkinsfile in this repository successfully, few builds were failed. Follow below to avoid those:
-  1. Detected Maven Version: 3.8.7 is not in the allowed range [3.9.2,)
-     Container is running with 3.8.7 maven version bur requirement is atleast 3.9.2. Tried updating maven version in container but it is saying upto date. So passed maven version from Jenkinsfile itself as
+  ```groovy
+  tools {
+      maven 'Maven-3.9.2' // Uses the Maven installed via Jenkins
+  }
+  ```
 
-       tools {
-           maven 'Maven-3.9.2' // Uses the Maven installed via Jenkins
-       }
+- Set the Maven version in Jenkins UI:
+  - Navigate to **Dashboard → Manage Jenkins → Tools → Maven Installations**
+  - Click **Add Maven**
+  - Set the name to `Maven-3.9.2` (must match `Jenkinsfile` entry)
+  - Select Maven version **3.9.2**
 
-     set this maven version from jenkins UI:
-       Dashboard -> Manage Jenkins -> Tools -> Maven Installations -> Add Maven
-       give name as Maven-3.9.2(provide same in Jenkinsfile) and select Maven version as 3.9.2.
-
-    This meets requirement condition on Maven version.
+This ensures that the required Maven version is met.
