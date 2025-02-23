@@ -18,5 +18,11 @@ pipeline {
                 sh "echo 'This is stage 3'"
             }
         }
+
+        stage("stage 3") {
+            steps {
+                echo 'Tested poll SCM' // echo can be used like this also
+            }
+        }
     }
 }
