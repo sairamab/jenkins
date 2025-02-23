@@ -19,7 +19,7 @@ pipeline {
             }
         }
 
-        stage("stage 3") {
+        stage("stage 4") {
             steps {
                 echo 'Tested poll SCM' // echo can be used like this also
             }
