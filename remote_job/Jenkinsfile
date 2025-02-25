@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+
+    stages {
+        stage("demo") {
+            steps {
+                build 'parametrized_pipeline_boolean' // calling another job named parametrized_pipeline_boolean
+            }
+        }
+
+        stage("demo2") {
+            steps {
+                build job: 'parametrized_pipeline_boolean', parameters: [[$class: 'BooleanParameterValue', name: 'myBoolean', value: true]] // calling job with parametrs
+            }
+        }
+    }
+}

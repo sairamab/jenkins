@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+
+    stages {
+        stage("demo") {
+            steps {
+                myFunc("Sai")
+            }
+        }
+    }
+}
+
+// function is defined outside of pipeline
+
+def myFunc(String name) {      // S in String should be upper case
+    echo "name is set to ${name}"
+}
